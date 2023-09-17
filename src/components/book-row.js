@@ -3,9 +3,20 @@ import { jsx } from '@emotion/core'
 
 import * as mq from 'styles/media-queries'
 import * as colors from 'styles/colors'
-function BookRow({ book }) {
-    const { name, author, coverImageUrl } = book
+import { Link } from 'react-router-dom'
+import { useQuery } from 'react-query'
+import { client } from '../utils/api-client'
+import { StatusButtons } from './status-buttons'
+import { Rating } from './rating'
 
+function BookRow({ user, book }) {
+    const { title, author, coverImageUrl } = book
+
+    const { data: listItems } = useQuery({
+        queryKey: 'list-items',
+        queryFn: () => client(`list-items`, { token: user.token }).then(data => data.listItems),
+    })
+    const listItem = listItems?.find(li => li.bookId === book.id) ?? null
     const id = `book-row-book-${book.id}`
 
     return (
@@ -17,8 +28,9 @@ function BookRow({ book }) {
                 position: 'relative',
             }}
         >
-            <div
+            <Link
                 aria-labelledby={id}
+                to={`/book/${book.id}`}
                 css={{
                     minHeight: 270,
                     flexGrow: 2,
@@ -44,7 +56,7 @@ function BookRow({ book }) {
                         },
                     }}
                 >
-                    <img src={coverImageUrl} alt={`${name} book cover`} css={{ maxHeight: '100%', width: '100%' }} />
+                    <img src={coverImageUrl} alt={`${title} book cover`} css={{ maxHeight: '100%', width: '100%' }} />
                 </div>
                 <div css={{ flex: 1 }}>
                     <div css={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -57,8 +69,9 @@ function BookRow({ book }) {
                                     color: colors.indigo,
                                 }}
                             >
-                                {name}
+                                {title}
                             </h2>
+                            {listItem?.finishDate ? <Rating user={user} listItem={listItem} /> : null}
                         </div>
                         <div css={{ marginLeft: 10 }}>
                             <div
@@ -77,6 +90,20 @@ function BookRow({ book }) {
                         {book.synopsis.substring(0, 500)}...
                     </small>
                 </div>
+            </Link>
+            <div
+                css={{
+                    marginLeft: '20px',
+                    position: 'absolute',
+                    right: -20,
+                    color: colors.gray80,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-around',
+                    height: '100%',
+                }}
+            >
+                <StatusButtons user={user} book={book} />
             </div>
         </div>
     )

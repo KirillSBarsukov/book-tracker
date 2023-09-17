@@ -83,7 +83,22 @@ const errorMessageVariants = {
     stacked: { display: 'block' },
     inline: { display: 'inline-block' },
 }
-
+function FullPageSpinner() {
+    return (
+        <div
+            css={{
+                fontSize: '4em',
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <Spinner />
+        </div>
+    )
+}
 function ErrorMessage({ error, variant = 'stacked', ...props }) {
     return (
         <div role="alert" css={[{ color: danger }, errorMessageVariants[variant]]} {...props}>
@@ -94,4 +109,44 @@ function ErrorMessage({ error, variant = 'stacked', ...props }) {
         </div>
     )
 }
-export { Button, FormGroup, Input, CircleButton, Dialog, Spinner, BookListUL, ErrorMessage }
+
+const inputStyles = {
+    border: '1px solid #f1f1f4',
+    background: '#f1f2f7',
+    padding: '8px 12px',
+}
+
+const Textarea = styled.textarea(inputStyles)
+
+function FullPageErrorFallback({ error }) {
+    return (
+        <div
+            role="alert"
+            css={{
+                color: danger,
+                height: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}
+        >
+            <p>Uh oh... There's a problem. Try refreshing the app.</p>
+            <pre>{error.message}</pre>
+        </div>
+    )
+}
+
+export {
+    Button,
+    FormGroup,
+    Input,
+    CircleButton,
+    Dialog,
+    Spinner,
+    BookListUL,
+    ErrorMessage,
+    FullPageSpinner,
+    Textarea,
+    FullPageErrorFallback,
+}

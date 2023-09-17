@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 
-function client(endpoint, customConfig = {}) {
+function client(endpoint) {
     // const config = {
     //     method: 'GET',
     //     ...customConfig,

@@ -2,6 +2,7 @@
   "name": "ecommerce-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://KirillSBarsukov.github.io/book-tracker",
   "dependencies": {
     "@emotion/core": "^10.0.35",
     "@emotion/react": "^11.11.1",
