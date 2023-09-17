@@ -10,9 +10,6 @@ import { supabase } from './utils/supabase'
 
 async function getUser() {
     let user = null
-
-    // const token = await auth.getToken()
-
     const { data } = await supabase.auth.getUser()
     if (data) {
         // const data = await client('me', { token })
