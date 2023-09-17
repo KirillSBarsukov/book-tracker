@@ -8,15 +8,32 @@ import { AuthenticatedApp } from './components/authenticated-app'
 import { UnauthenticatedApp } from './components/unauthenticated-app'
 import { supabase } from './utils/supabase'
 
+async function getUser() {
+    let user = null
+
+    // const token = await auth.getToken()
+
+    const { data } = await supabase.auth.getUser()
+    if (data) {
+        // const data = await client('me', { token })
+        user = data.user
+    }
+
+    return user
+}
+
 function App() {
     const [user, setUser] = React.useState(null)
 
+    React.useEffect(() => {
+        getUser().then(u => setUser(u))
+    }, [])
     const login = async ({ email, password }) => {
         const { data } = await supabase.auth.signInWithPassword({
             email,
             password,
         })
-        setUser(data)
+        setUser(data.user)
     }
 
     const register = async ({ email, password }) => {
@@ -24,7 +41,7 @@ function App() {
             email,
             password,
         })
-        setUser(data)
+        setUser(data.user)
     }
     const logout = async () => {
         await supabase.auth.signOut()

@@ -4,22 +4,21 @@ import * as React from 'react'
 import { Modal, ModalContents, ModalOpenButton } from './modal'
 import { Button, ErrorMessage, FormGroup, Input, Spinner } from './StyledComponents'
 import { Logo } from './logo'
+import { useAsync } from '../utils/hooks'
 
 function LoginForm({ onSubmit, submitButton }) {
-    // const { isLoading, isError, error, run } = useAsync()
-    const { isLoading, isError, error, run } = {
-        isLoading: false,
-    }
+    const { isLoading, isError, error, run } = useAsync()
+
     function handleSubmit(event) {
-        // event.preventDefault()
-        // const { username, password } = event.target.elements
-        //
-        // run(
-        //     onSubmit({
-        //         username: username.value,
-        //         password: password.value,
-        //     }),
-        // )
+        event.preventDefault()
+        const { username, password } = event.target.elements
+
+        run(
+            onSubmit({
+                email: username.value,
+                password: password.value,
+            }),
+        )
     }
 
     return (
