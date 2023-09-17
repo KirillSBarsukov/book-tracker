@@ -1,17 +1,43 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+/** @jsx jsx */
+import { jsx } from '@emotion/react'
+import 'bootstrap/dist/css/bootstrap-reboot.css'
+import '@reach/dialog/styles.css'
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { AuthenticatedApp } from './components/authenticated-app'
+import { UnauthenticatedApp } from './components/unauthenticated-app'
+import { supabase } from './utils/supabase'
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+function App() {
+    const [user, setUser] = React.useState(null)
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    const login = async ({ email, password }) => {
+        const { data } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+        setUser(data)
+    }
+
+    const register = async ({ email, password }) => {
+        const { data } = await supabase.auth.signUp({
+            email,
+            password,
+        })
+        setUser(data)
+    }
+    const logout = async () => {
+        await supabase.auth.signOut()
+        setUser(null)
+    }
+
+    return user ? (
+        <AuthenticatedApp user={user} logout={logout} />
+    ) : (
+        <UnauthenticatedApp login={login} register={register} />
+    )
+}
+
+const root = createRoot(document.getElementById('root'))
+root.render(<App />)
+export { root }
