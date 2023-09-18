@@ -5,59 +5,21 @@ import * as React from 'react'
 import Tooltip from '@reach/tooltip'
 import { FaSearch, FaTimes } from 'react-icons/fa'
 import BookRow from './book-row'
-import { client } from '../utils/api-client'
 import { Input, Spinner, BookListUL } from './StyledComponents'
-import { useQuery } from 'react-query'
-import bookPlaceholderSvg from '../assets/book-placeholder.svg'
+
 import { danger } from '../styles/colors'
-
-const loadingBook = {
-    title: 'Loading...',
-    author: 'loading...',
-    coverImageUrl: bookPlaceholderSvg,
-    publisher: 'Loading Publishing',
-    synopsis: 'Loading...',
-    loadingBook: true,
-}
-
-const loadingBooks = Array.from({ length: 10 }, (v, index) => ({
-    id: `loading-book-${index}`,
-    ...loadingBook,
-}))
+import { refetchBookSearchQuery, useBookSearch } from '../utils/books'
+import { useEffect } from 'react'
 
 function DiscoverBooksScreen({ user }) {
-    // const [status, setStatus] = React.useState('idle')
-    // const [data, setData] = React.useState(null)
-    // const [query, setQuery] = React.useState('')
-    // const [queried, setQueried] = React.useState(false)
-    //
-    // const isLoading = status === 'loading'
-    // const isSuccess = status === 'success'
-    //
-    // React.useEffect(() => {
-    //     if (!queried) {
-    //         return
-    //     }
-    //     setStatus('loading')
-    //     client(query).then(({ data }) => {
-    //         setData(data)
-    //         setStatus('success')
-    //     })
-    // }, [query, queried])
-
     const [query, setQuery] = React.useState('')
     const [queried, setQueried] = React.useState(false)
 
-    const {
-        data: books = loadingBooks,
-        error,
-        isLoading,
-        isError,
-        isSuccess,
-    } = useQuery({
-        queryKey: ['bookSearch', { query }],
-        queryFn: () => client(query).then(data => data.books),
-    })
+    const { books, error, isLoading, isError, isSuccess } = useBookSearch(query)
+
+    useEffect(() => {
+        return () => refetchBookSearchQuery()
+    }, [])
 
     async function handleSearchSubmit(event) {
         event.preventDefault()
@@ -120,7 +82,7 @@ function DiscoverBooksScreen({ user }) {
                     <BookListUL css={{ marginTop: 20 }}>
                         {books.map(book => (
                             <li key={book.id} aria-label={book.title}>
-                                <BookRow user={user} key={book.id} book={book} />
+                                <BookRow key={book.id} book={book} />
                             </li>
                         ))}
                     </BookListUL>

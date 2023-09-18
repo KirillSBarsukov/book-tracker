@@ -1,16 +1,12 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/core'
-
-import { useQuery } from 'react-query'
-import { client } from 'utils/api-client'
 import BookRow from './book-row'
 import { BookListUL } from './StyledComponents'
+import { useListItems } from '../utils/list-items'
 
 function ListItemList({ user, filterListItems, noListItems, noFilteredListItems }) {
-    const { data: listItems } = useQuery({
-        queryKey: 'list-items',
-        queryFn: () => client(`list-items`, { token: user.token }).then(data => data.listItems),
-    })
+    const listItems = useListItems(user)
+
     const filteredListItems = listItems?.filter(filterListItems)
 
     if (!listItems?.length) {
@@ -24,7 +20,7 @@ function ListItemList({ user, filterListItems, noListItems, noFilteredListItems 
         <BookListUL>
             {filteredListItems.map(listItem => (
                 <li key={listItem.id}>
-                    <BookRow user={user} book={listItem.book} />
+                    <BookRow book={listItem.book} />
                 </li>
             ))}
         </BookListUL>

@@ -3,51 +3,23 @@ import { jsx } from '@emotion/core'
 
 import * as React from 'react'
 import { useParams } from 'react-router-dom'
-import bookPlaceholderSvg from '../assets/book-placeholder.svg'
-import { supabase } from '../utils/supabase'
 import Tooltip from '@reach/tooltip'
 import { FaRegCalendarAlt } from 'react-icons/fa'
 import { formatDate } from '../utils/misc'
-import { queryCache, useMutation, useQuery } from 'react-query'
-import { client } from '../utils/api-client'
 import debounceFn from 'debounce-fn'
-import { Textarea } from './StyledComponents'
+import { ErrorMessage, Spinner, Textarea } from './StyledComponents'
 import { StatusButtons } from './status-buttons'
 import { small } from 'styles/media-queries'
 import { gray80 } from '../styles/colors'
 import { Rating } from './rating'
-
-const loadingBook = {
-    title: 'Loading...',
-    author: 'loading...',
-    coverImageUrl: bookPlaceholderSvg,
-    publisher: 'Loading Publishing',
-    synopsis: 'Loading...',
-    loadingBook: true,
-}
+import { useBook } from '../utils/books'
+import { useListItem, useUpdateListItem } from '../utils/list-items'
 
 function BookScreen({ user }) {
-    const getBookById = async id => {
-        const { data } = await supabase.from('book').select().eq('id', id).single()
-        return data
-    }
-
-    const getListItems = async () => {
-        const { data } = await supabase.from('book').select()
-        return data
-    }
-
     const { bookId } = useParams()
-    const { data: book = loadingBook } = useQuery({
-        queryKey: ['book', { bookId }],
-        queryFn: () => getBookById(bookId),
-    })
+    const book = useBook(bookId)
 
-    const { data: listItems } = useQuery({
-        queryKey: 'list-items',
-        queryFn: () => getListItems(),
-    })
-    const listItem = listItems?.find(li => li.bookId === bookId) ?? null
+    const listItem = useListItem(bookId)
 
     const { title, author, coverImageUrl, publisher, synopsis } = book
 
@@ -90,7 +62,7 @@ function BookScreen({ user }) {
                         </div>
                     </div>
                     <div css={{ marginTop: 10, height: 46 }}>
-                        {listItem?.finishDate ? <Rating user={user} listItem={listItem} /> : null}
+                        {listItem?.finish_date ? <Rating user={user} listItem={listItem} /> : null}
                         {listItem ? <ListItemTimeframe listItem={listItem} /> : null}
                     </div>
                     <br />
@@ -103,7 +75,7 @@ function BookScreen({ user }) {
 }
 
 function ListItemTimeframe({ listItem }) {
-    const timeframeLabel = listItem.finishDate ? 'Start and finish date' : 'Start date'
+    const timeframeLabel = listItem.finish_date ? 'Start and finish date' : 'Start date'
 
     return (
         <Tooltip label={timeframeLabel}>
@@ -111,7 +83,7 @@ function ListItemTimeframe({ listItem }) {
                 <FaRegCalendarAlt css={{ marginTop: -2, marginRight: 5 }} />
                 <span>
                     {formatDate(listItem.startDate)}{' '}
-                    {listItem.finishDate ? `— ${formatDate(listItem.finishDate)}` : null}
+                    {listItem.finish_date ? `— ${formatDate(listItem.finish_date)}` : null}
                 </span>
             </div>
         </Tooltip>
@@ -119,19 +91,11 @@ function ListItemTimeframe({ listItem }) {
 }
 
 function NotesTextarea({ listItem, user }) {
-    const [mutate] = useMutation(
-        updates =>
-            client(`list-items/${updates.id}`, {
-                method: 'PUT',
-                data: updates,
-                token: user.token,
-            }),
-        { onSettled: () => queryCache.invalidateQueries('list-items') },
-    )
+    const [mutate, { error, isError, isLoading }] = useUpdateListItem(user)
     const debouncedMutate = React.useMemo(() => debounceFn(mutate, { wait: 300 }), [mutate])
 
     function handleNotesChange(e) {
-        debouncedMutate({ id: listItem.id, notes: e.target.value })
+        debouncedMutate({ id: listItem.id, note: e.target.value })
     }
 
     return (
@@ -149,10 +113,14 @@ function NotesTextarea({ listItem, user }) {
                 >
                     Notes
                 </label>
+                {isError ? (
+                    <ErrorMessage error={error} variant="inline" css={{ marginLeft: 6, fontSize: '0.7em' }} />
+                ) : null}
+                {isLoading ? <Spinner /> : null}
             </div>
             <Textarea
                 id="notes"
-                defaultValue={listItem.notes}
+                defaultValue={listItem.note}
                 onChange={handleNotesChange}
                 css={{ width: '100%', minHeight: 300 }}
             />

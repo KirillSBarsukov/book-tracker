@@ -75,9 +75,12 @@ const FormGroup = styled.div({
     flexDirection: 'column',
 })
 
-const BookListUL = styled.div({
-    display: 'flex',
-    flexDirection: 'column',
+const BookListUL = styled.ul({
+    listStyle: 'none',
+    padding: '0',
+    display: 'grid',
+    gridTemplateRows: 'repeat(auto-fill, minmax(100px, 1fr))',
+    gridGap: '1em',
 })
 const errorMessageVariants = {
     stacked: { display: 'block' },

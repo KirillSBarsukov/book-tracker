@@ -6,7 +6,7 @@ function ReadingListScreen({ user }) {
     return (
         <ListItemList
             user={user}
-            filterListItems={li => !li.finishDate}
+            filterListItems={li => !li.finish_date}
             noListItems={
                 <p>
                     Hey there! Welcome to your bookshelf reading list. Get started by heading over to{' '}

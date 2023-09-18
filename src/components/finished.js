@@ -6,7 +6,7 @@ function FinishedScreen({ user }) {
     return (
         <ListItemList
             user={user}
-            filterListItems={li => Boolean(li.finishDate)}
+            filterListItems={li => Boolean(li.finish_date)}
             noListItems={
                 <p>
                     Hey there! This is where books will go when you've finished reading them. Get started by heading

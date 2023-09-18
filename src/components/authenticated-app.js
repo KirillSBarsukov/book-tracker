@@ -39,7 +39,7 @@ function AuthenticatedApp({ user, logout }) {
                     right: '10px',
                 }}
             >
-                {user.username}
+                {user.email}
                 <Button variant="secondary" css={{ marginLeft: '10px' }} onClick={logout}>
                     Logout
                 </Button>

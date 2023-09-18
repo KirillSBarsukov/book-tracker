@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import 'bootstrap/dist/css/bootstrap-reboot.css'
-import '@reach/dialog/styles.css'
+import './bootstrap'
+
 import React from 'react'
 import { AuthenticatedApp } from './components/authenticated-app'
 import { UnauthenticatedApp } from './components/unauthenticated-app'
@@ -10,6 +10,7 @@ import { useAsync } from './utils/hooks'
 import { FullPageSpinner } from './components/StyledComponents'
 import { danger } from './styles/colors'
 import { BrowserRouter } from 'react-router-dom'
+import { queryCache } from 'react-query'
 
 async function getUser() {
     const {
@@ -42,6 +43,7 @@ function App() {
     }
     const logout = async () => {
         await supabase.auth.signOut()
+        queryCache.clear()
         setData(null)
     }
 
